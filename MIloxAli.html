@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff7f6">
+  <meta name="description" content="A birthday surprise for Milo, made with love by Ali.">
+  <title>For Milo, With Love — from Ali</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #573d49;
+      --soft-ink: #7e6974;
+      --rose: #d66d8e;
+      --rose-dark: #b94c72;
+      --rose-pale: #ffe7ed;
+      --lavender: #eee9ff;
+      --gold: #d9aa5b;
+      --paper: #fffdfd;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      scroll-behavior: smooth;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 0% 15%, #ffe4ea 0, transparent 33%),
+        radial-gradient(ellipse at 100% 66%, #eee7ff 0, transparent 35%),
+        #fff9f7;
+    }
+
+    button, input { font: inherit; }
+
+    button:focus-visible, a:focus-visible, input:focus-visible {
+      outline: 3px solid #8a63bd;
+      outline-offset: 4px;
+    }
+
+    .editor-bar {
+      position: sticky;
+      z-index: 30;
+      top: 0;
+      display: flex;
+      min-height: 58px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px clamp(14px, 4vw, 44px);
+      border-bottom: 1px solid #eedfe5;
+      background: rgba(255, 253, 253, .94);
+      box-shadow: 0 5px 22px rgba(97, 56, 75, .06);
+      backdrop-filter: blur(14px);
+    }
+
+    .editor-brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: .88rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .editor-brand-mark { color: var(--rose); font-size: 1.3rem; }
+    .editor-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+
+    .small-button {
+      min-height: 36px;
+      padding: 0 13px;
+      border: 1px solid #ecdce3;
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: .78rem;
+      font-weight: 800;
+      transition: transform .18s ease, background .18s ease;
+    }
+
+    .small-button:hover { transform: translateY(-1px); background: #fff4f7; }
+    .small-button.primary { border-color: var(--rose); background: var(--rose); color: #fff; }
+    .small-button.primary:hover { background: var(--rose-dark); }
+    .small-button.saved { background: #e8f5e9; border-color: #c9e6ce; color: #356e42; }
+
+    .edit-hint {
+      display: none;
+      padding: 9px 18px;
+      background: #fff2d8;
+      color: #795819;
+      font-size: .78rem;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    body.editing .edit-hint { display: block; }
+    body.editing [data-editable="true"] {
+      outline: 2px dashed rgba(185, 76, 114, .38);
+      outline-offset: 4px;
+      border-radius: 4px;
+      cursor: text;
+    }
+    body.editing [data-editable="true"]:focus {
+      outline: 2px solid var(--rose-dark);
+      background-color: rgba(255, 238, 243, .53);
+    }
+
+    .opening {
+      position: relative;
+      display: grid;
+      min-height: calc(100svh - 58px);
+      place-items: center;
+      overflow: hidden;
+      padding: 35px 18px;
+      isolation: isolate;
+    }
+
+    .opening::before, .opening::after {
+      position: absolute;
+      z-index: -1;
+      width: min(50vw, 380px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: rgba(255, 220, 230, .48);
+      content: "";
+      filter: blur(2px);
+      animation: float-orb 9s ease-in-out infinite alternate;
+    }
+
+    .opening::before { top: -130px; left: -120px; }
+    .opening::after {
+      right: -130px;
+      bottom: -150px;
+      background: rgba(228, 218, 255, .5);
+      animation-delay: -4s;
+    }
+
+    .opening-card {
+      width: min(100%, 740px);
+      padding: clamp(28px, 7vw, 64px) 24px;
+      border: 1px solid rgba(255, 255, 255, .94);
+      border-radius: 34px;
+      background: rgba(255, 255, 255, .77);
+      box-shadow: 0 28px 100px rgba(128, 74, 98, .13);
+      text-align: center;
+      backdrop-filter: blur(12px);
+      animation: arrive .85s ease-out both;
+    }
+
+    .kicker {
+      margin: 0 0 14px;
+      color: var(--rose-dark);
+      font-size: .72rem;
+      font-weight: 900;
+      letter-spacing: .18em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .teddy-pair {
+      display: flex;
+      min-height: clamp(145px, 30vw, 225px);
+      align-items: center;
+      justify-content: center;
+      gap: clamp(0px, 4vw, 32px);
+      margin: 4px 0 14px;
+      font-size: clamp(5.8rem, 19vw, 9.2rem);
+      line-height: 1;
+    }
+
+    .teddy {
+      display: inline-block;
+      transform-origin: 50% 85%;
+      animation: teddy-sway 2.5s ease-in-out infinite;
+      filter: drop-shadow(0 12px 9px rgba(101, 65, 56, .14));
+    }
+
+    .teddy:nth-child(2) { animation-delay: -1.25s; }
+
+    h1, h2, h3, p { overflow-wrap: anywhere; }
+
+    .opening h1, .hero h1, .section-title, .letter-card h3 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 600;
+      letter-spacing: -.04em;
+    }
+
+    .opening h1 {
+      margin: 0;
+      font-size: clamp(2.7rem, 9vw, 5rem);
+      line-height: 1.04;
+    }
+
+    .opening h1 span, .hero h1 span { color: var(--rose); }
+
+    .opening-copy {
+      max-width: 480px;
+      margin: 18px auto 25px;
+      color: var(--soft-ink);
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 50px;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 0 24px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--rose);
+      box-shadow: 0 10px 26px rgba(214, 109, 142, .27);
+      color: white;
+      cursor: pointer;
+      font-size: .95rem;
+      font-weight: 800;
+      text-decoration: none;
+      transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      background: var(--rose-dark);
+      box-shadow: 0 14px 30px rgba(185, 76, 114, .3);
+    }
+
+    .button:active { transform: scale(.98); }
+    .opening-note { margin: 15px 0 0; color: #a38b96; font-size: .79rem; }
+    .birthday[hidden] { display: none; }
+    .birthday { animation: arrive .65s ease-out both; }
+
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px clamp(18px, 5vw, 56px);
+      color: #a17183;
+      font-size: .8rem;
+      font-weight: 800;
+    }
+
+    .topline span:last-child { color: var(--rose-dark); }
+
+    .hero {
+      display: grid;
+      min-height: min(760px, 92svh);
+      align-content: center;
+      justify-items: center;
+      padding: 36px 20px 68px;
+      text-align: center;
+    }
+
+    .hero-teddies {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-size: clamp(4rem, 13vw, 6.5rem);
+    }
+
+    .hero-teddies span { animation: teddy-sway 2.4s ease-in-out infinite; }
+    .hero-teddies span:last-child { animation-delay: -1.2s; }
+
+    .hero h1 {
+      max-width: 850px;
+      margin: 0;
+      font-size: clamp(3.2rem, 11vw, 7rem);
+      line-height: .98;
+    }
+
+    .hero-copy {
+      max-width: 620px;
+      margin: 20px auto 25px;
+      color: var(--soft-ink);
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      line-height: 1.85;
+    }
+
+    .scroll-cue {
+      margin-top: 24px;
+      color: #a58b96;
+      font-size: .82rem;
+      animation: cue-bob 1.8s ease-in-out infinite;
+    }
+
+    .section { padding: clamp(66px, 10vw, 108px) 20px; }
+    .section-inner { width: min(100%, 1040px); margin: auto; }
+
+    .section-heading {
+      margin: 0 0 36px;
+      text-align: center;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.1rem, 6vw, 3.7rem);
+      font-weight: 600;
+      letter-spacing: -.04em;
+      line-height: 1.1;
+    }
+
+    .section-heading p {
+      max-width: 650px;
+      margin: 15px auto 0;
+      color: var(--soft-ink);
+      line-height: 1.8;
+    }
+
+    .photos-section {
+      border-block: 1px solid rgba(233, 210, 218, .7);
+      background: rgba(255, 255, 255, .62);
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .photo-card {
+      position: relative;
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid rgba(236, 219, 225, .9);
+      border-radius: 22px;
+      background: white;
+      box-shadow: 0 14px 38px rgba(100, 62, 79, .08);
+    }
+
+    .photo-frame {
+      position: relative;
+      display: grid;
+      min-height: 290px;
+      aspect-ratio: 4 / 4.5;
+      place-items: center;
+      overflow: hidden;
+      background: linear-gradient(145deg, #ffe5eb, #f0eaff);
+    }
+
+    .photo-card:nth-child(2) .photo-frame { background: linear-gradient(145deg, #ffefd9, #ffe3ed); }
+    .photo-card:nth-child(3) .photo-frame { background: linear-gradient(145deg, #e6f3e8, #e8e5ff); }
+
+    .photo-frame img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-placeholder {
+      display: grid;
+      justify-items: center;
+      gap: 10px;
+      padding: 24px;
+      color: #946e7e;
+      text-align: center;
+    }
+
+    .photo-placeholder .placeholder-icon { font-size: 3.3rem; }
+    .photo-placeholder strong { font-size: .98rem; }
+    .photo-placeholder span:last-child { color: #9b8991; font-size: .8rem; line-height: 1.55; }
+    .photo-card.has-photo .photo-placeholder { display: none; }
+
+    .photo-caption {
+      margin: 0;
+      padding: 16px 13px 18px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.02rem;
+      text-align: center;
+    }
+
+    .photo-input { display: none; }
+
+    .photo-edit {
+      position: absolute;
+      right: 11px;
+      bottom: 11px;
+      z-index: 2;
+      display: inline-flex;
+      min-height: 37px;
+      align-items: center;
+      gap: 7px;
+      padding: 0 13px;
+      border: 1px solid rgba(255, 255, 255, .7);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .94);
+      box-shadow: 0 4px 15px #0002;
+      color: #654654;
+      cursor: pointer;
+      font-size: .76rem;
+      font-weight: 800;
+      transition: transform .18s ease;
+    }
+
+    .photo-edit:hover { transform: translateY(-2px); }
+
+    .timeline-section {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, #fbf8ff, #fff9f8);
+    }
+
+    .timeline {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 19px;
+      margin-top: 44px;
+    }
+
+    .timeline-card {
+      padding: 26px 23px;
+      border: 1px solid white;
+      border-radius: 21px;
+      background: rgba(255, 255, 255, .8);
+      box-shadow: 0 12px 34px rgba(97, 68, 117, .08);
+    }
+
+    .timeline-number {
+      display: grid;
+      width: 41px;
+      height: 41px;
+      margin-bottom: 16px;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--rose-pale);
+      color: var(--rose-dark);
+      font-weight: 900;
+    }
+
+    .timeline-card h3 { margin: 0 0 9px; font-size: 1.05rem; }
+    .timeline-card p { margin: 0; color: var(--soft-ink); font-size: .9rem; line-height: 1.75; }
+
+    .wish-section {
+      background: rgba(255, 255, 255, .65);
+      border-block: 1px solid rgba(233, 210, 218, .7);
+    }
+
+    .wish-card {
+      width: min(100%, 690px);
+      margin: 0 auto;
+      padding: clamp(24px, 6vw, 46px);
+      border: 1px solid white;
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .87);
+      box-shadow: 0 20px 64px rgba(130, 77, 100, .1);
+      text-align: center;
+    }
+
+    .cake {
+      position: relative;
+      display: grid;
+      min-height: 157px;
+      place-items: center;
+      margin: 0 auto 15px;
+    }
+
+    .cake-emoji {
+      display: inline-block;
+      font-size: clamp(5.4rem, 18vw, 7.5rem);
+      filter: drop-shadow(0 12px 8px rgba(110, 69, 74, .13));
+    }
+
+    .candles {
+      position: absolute;
+      top: 9px;
+      left: 50%;
+      display: flex;
+      gap: 19px;
+      transform: translateX(-50%);
+      font-size: 1.35rem;
+      transition: opacity .3s ease, transform .3s ease;
+    }
+
+    .candles.off { opacity: 0; transform: translate(-50%, 15px) scale(.7); }
+    .cake.pop .cake-emoji { animation: cake-pop .55s ease; }
+
+    .wish-message {
+      min-height: 2em;
+      margin: 18px 0 0;
+      color: var(--rose-dark);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.15rem;
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    .letter-section { background: linear-gradient(180deg, #f5f0ff, #fff9f8); }
+
+    .letter-card {
+      position: relative;
+      width: min(100%, 770px);
+      margin: 0 auto;
+      padding: clamp(28px, 7vw, 57px);
+      border: 1px solid rgba(255, 255, 255, .96);
+      border-radius: 27px;
+      background: rgba(255, 255, 255, .87);
+      box-shadow: 0 22px 68px rgba(95, 71, 119, .1);
+    }
+
+    .letter-card::after {
+      position: absolute;
+      top: 19px;
+      right: 24px;
+      color: #e7a7bb;
+      content: "♡";
+      font-size: 2.2rem;
+    }
+
+    .letter-card h3 {
+      margin: 0 0 20px;
+      color: #66465a;
+      font-size: clamp(1.9rem, 5vw, 2.6rem);
+    }
+
+    .letter-copy { color: #75636d; font-size: 1rem; line-height: 1.95; }
+    .letter-copy p { margin: 0 0 15px; }
+
+    .letter-signoff {
+      margin: 25px 0 0;
+      color: var(--rose-dark);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.2rem;
+      font-style: italic;
+      line-height: 1.7;
+    }
+
+    .finale { padding: 70px 20px 80px; text-align: center; }
+
+    .finale p {
+      margin: 0;
+      color: #927582;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.3rem, 4vw, 1.85rem);
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    .finale .hearts {
+      margin-top: 12px;
+      color: var(--rose);
+      font-family: sans-serif;
+      font-size: 1rem;
+      font-style: normal;
+      letter-spacing: .45em;
+    }
+
+    .confetti-layer {
+      position: fixed;
+      z-index: 50;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .confetti {
+      position: absolute;
+      top: -22px;
+      width: 10px;
+      height: 15px;
+      border-radius: 3px;
+      animation: confetti-fall var(--fall-time, 3s) linear forwards;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 60;
+      max-width: min(380px, calc(100vw - 36px));
+      padding: 13px 17px;
+      border-radius: 13px;
+      background: #523b49;
+      box-shadow: 0 9px 26px #0002;
+      color: white;
+      font-size: .86rem;
+      line-height: 1.5;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @keyframes teddy-sway {
+      0%, 100% { transform: rotate(-5deg) translateY(0); }
+      50% { transform: rotate(5deg) translateY(-8px); }
+    }
+
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(15px) scale(.985); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes float-orb { to { transform: translate(34px, 25px) scale(1.1); } }
+    @keyframes cue-bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(6px); }
+    }
+
+    @keyframes cake-pop {
+      0%, 100% { transform: scale(1) rotate(0); }
+      40% { transform: scale(1.14) rotate(-5deg); }
+      70% { transform: scale(1.08) rotate(5deg); }
+    }
+
+    @keyframes confetti-fall {
+      to { transform: translate3d(var(--drift, 0), 110vh, 0) rotate(760deg); opacity: .9; }
+    }
+
+    @media (max-width: 740px) {
+      .photo-grid, .timeline { grid-template-columns: 1fr; }
+      .photo-frame { min-height: 330px; aspect-ratio: 5 / 4; }
+    }
+
+    @media (max-width: 520px) {
+      .opening-card { border-radius: 25px; }
+      .topline { font-size: .71rem; }
+      .hero { min-height: 88svh; }
+      .section { padding-right: 15px; padding-left: 15px; }
+      .photo-frame { min-height: 290px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body class="">
+  <header class="editor-bar">
+    <div class="editor-brand"><span class="editor-brand-mark">♡</span> Milo’s birthday page</div>
+    <div class="editor-actions">
+      <button class="small-button" id="edit-toggle" type="button">✎ Edit page</button>
+      <button class="small-button saved" id="save-button" type="button">▣ Save here</button>
+      <button class="small-button primary" id="download-button" type="button">↓ Download website</button>
+    </div>
+  </header>
+  <div class="edit-hint" id="edit-hint">
+    Edit mode: click any outlined text to change it, or choose a photo. Save here for this browser, or download the edited website to publish.
+  </div>
+
+  <section class="opening" id="opening" aria-labelledby="opening-title" hidden="">
+    <div class="opening-card">
+      <p class="kicker">A little birthday surprise</p>
+      <div class="teddy-pair" aria-label="Two teddy bears celebrating">
+        <span class="teddy" aria-hidden="true">🧸</span>
+        <span class="teddy" aria-hidden="true">🧸</span>
+      </div>
+      <h1 id="opening-title" data-editable="true">For you, <span>Milo</span> ♡</h1>
+      <p class="opening-copy" data-editable="true">Our two little bears have been waiting to celebrate someone very special.</p>
+      <button class="button" id="open-surprise" type="button">Open your surprise <span aria-hidden="true">✧</span></button>
+      <p class="opening-note">Made with love, just for you</p>
+    </div>
+  </section>
+
+  <div class="birthday" id="birthday">
+    <header class="topline">
+      <span data-editable="true">A birthday just for you</span>
+      <span data-editable="true">With love, always ♡</span>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="birthday-title">
+        <div class="hero-teddies" aria-hidden="true"><span>🧸</span><span>🧸</span></div>
+        <p class="kicker" data-editable="true">Today is all about you</p>
+        <h1 id="birthday-title" data-editable="true">Happy Birthday,<br><span>Milo!</span></h1>
+        <p class="hero-copy" data-editable="true">To my best friend, my safe place, and my forever love—today we celebrate the wonderful person you are.</p>
+        <a class="button" href="#birthday-wish">Let’s celebrate <span aria-hidden="true">♡</span></a>
+        <div class="scroll-cue" aria-hidden="true">A little more love below ↓</div>
+      </section>
+
+      <section class="section photos-section" aria-labelledby="photos-title">
+        <div class="section-inner">
+          <div class="section-heading">
+            <p class="kicker">Little moments, big memories</p>
+            <h2 id="photos-title" data-editable="true">Our favorite memories</h2>
+            <p data-editable="true">Add your favorite photos together. Choose a picture for each frame, then save or download the page.</p>
+          </div>
+          <div class="photo-grid">
+            <article class="photo-card" data-photo-card="">
+              <div class="photo-frame">
+                <img alt="A favorite memory with Milo" hidden="">
+                <div class="photo-placeholder"><span class="placeholder-icon" aria-hidden="true">📷</span><strong>Add a favorite photo</strong><span>Pick a picture of a happy moment together.</span></div>
+                <label class="photo-edit edit-only" hidden="">＋ Add photo<input class="photo-input" type="file" accept="image/*" aria-label="Choose the first memory photo"></label>
+              </div>
+              <p class="photo-caption" data-editable="true">A day I’ll always remember</p>
+            </article>
+            <article class="photo-card" data-photo-card="">
+              <div class="photo-frame">
+                <img alt="A sweet birthday memory with Milo" hidden="">
+                <div class="photo-placeholder"><span class="placeholder-icon" aria-hidden="true">💐</span><strong>Save this moment</strong><span>Add a photo that always makes you smile.</span></div>
+                <label class="photo-edit edit-only" hidden="">＋ Add photo<input class="photo-input" type="file" accept="image/*" aria-label="Choose the second memory photo"></label>
+              </div>
+              <p class="photo-caption" data-editable="true">One of my happiest days</p>
+            </article>
+            <article class="photo-card" data-photo-card="">
+              <div class="photo-frame">
+                <img alt="A favorite photo of Milo" hidden="">
+                <div class="photo-placeholder"><span class="placeholder-icon" aria-hidden="true">💖</span><strong>One more for the album</strong><span>Choose another photo that means a lot.</span></div>
+                <label class="photo-edit edit-only" hidden="">＋ Add photo<input class="photo-input" type="file" accept="image/*" aria-label="Choose the third memory photo"></label>
+              </div>
+              <p class="photo-caption" data-editable="true">My favorite person, always</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section timeline-section" aria-labelledby="reasons-title">
+        <div class="section-inner">
+          <div class="section-heading">
+            <p class="kicker">Seventeen looks lovely on you</p>
+            <h2 id="reasons-title" data-editable="true">17 reasons you’re wonderful</h2>
+            <p data-editable="true">A few little reminders for your seventeenth birthday. Edit these words to make them your own.</p>
+          </div>
+          <div class="timeline">
+            <article class="timeline-card">
+              <span class="timeline-number">01</span>
+              <h3 data-editable="true">Your warm heart</h3>
+              <p data-editable="true">You care deeply, love kindly, and make people feel seen. That is one of your many beautiful gifts.</p>
+            </article>
+            <article class="timeline-card">
+              <span class="timeline-number">02</span>
+              <h3 data-editable="true">Your lovely smile</h3>
+              <p data-editable="true">Your smile can turn an ordinary day into one I want to remember. I hope you smile extra today.</p>
+            </article>
+            <article class="timeline-card">
+              <span class="timeline-number">03</span>
+              <h3 data-editable="true">Simply being you</h3>
+              <p data-editable="true">You do not have to be anything other than yourself to make life brighter. You are already wonderful.</p>
+            </article>
+          </div>
+          <p class="more-reasons" data-editable="true">And there are fourteen more reasons I could write down—but the best one is simply that you’re you. ♡</p>
+        </div>
+      </section>
+
+      <section class="section wish-section" id="birthday-wish" aria-labelledby="wish-title">
+        <div class="section-inner">
+          <div class="section-heading">
+            <p class="kicker">Make a wish</p>
+            <h2 id="wish-title">Your birthday moment ✨</h2>
+            <p>Close your eyes, think of something beautiful, and tap the cake when you’re ready.</p>
+          </div>
+          <div class="wish-card">
+            <div class="cake pop" id="cake" aria-label="Birthday cake with candles">
+              <span class="candles off" id="candles" aria-hidden="true"><span>🕯️</span><span>🕯️</span><span>🕯️</span></span>
+              <span class="cake-emoji" aria-hidden="true">🎂</span>
+            </div>
+            <button class="button" id="wish-button" type="button">Candles blown out—wish sent! 💖</button>
+            <p class="wish-message" id="wish-message" aria-live="polite">May this year bring you every little thing your heart is wishing for.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section letter-section" aria-labelledby="letter-heading">
+        <div class="section-inner">
+          <div class="section-heading">
+            <p class="kicker">A note from Ali’s heart</p>
+            <h2 id="letter-heading">A little birthday letter</h2>
+          </div>
+          <article class="letter-card">
+            <h3 data-editable="true">My dearest Milo,</h3>
+            <div class="letter-copy">
+              <p data-editable="true">Tum meri zindagi ki sab se khoobsurat khushi ho. Tumhari muskurahat mera har din behtar bana deti hai, aur tumhare saath guzara hua har lamha mere liye khaas hai.</p>
+              <p data-editable="true">Happy 17th birthday, my love. I hope this year brings you new things to discover, beautiful dreams to follow, and so many reasons to smile. I’ll always be cheering you on as you grow into everything you want to be.</p>
+              <p data-editable="true">Thank you for being exactly who you are—for your kindness, your laughter, and all the little ways you make life brighter. I hope today reminds you how loved and special you are.</p>
+              <p data-editable="true">Here’s to more memories, more laughter, and all the lovely little moments still waiting for us.</p>
+            </div>
+            <p class="letter-signoff" data-editable="true">I love you endlessly,<br>Ali <span aria-hidden="true">♥</span></p>
+          </article>
+        </div>
+      </section>
+
+      <footer class="finale">
+        <p data-editable="true">Make a wish, birthday girl.<br>The world is sweeter with you in it.</p>
+        <p class="hearts" aria-hidden="true">♡ ♥ ♡</p>
+        <p class="footer-signoff" data-editable="true">Made with love by Ali, just for Milo.</p>
+      </footer>
+    </main>
+  </div>
+
+  <div class="confetti-layer" id="confetti-layer" aria-hidden="true"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite">Downloaded the edited site. Publish this file for others to see your changes.</div>
+
+  <script>
+    try {
+      const saved = localStorage.getItem("milo-birthday-page-v1");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (typeof parsed.site === "string") {
+          document.getElementById("birthday").innerHTML = parsed.site;
+        }
+        if (typeof parsed.openingTitle === "string") {
+          document.getElementById("opening-title").innerHTML = parsed.openingTitle;
+        }
+        if (typeof parsed.openingCopy === "string") {
+          document.querySelector(".opening-copy").innerHTML = parsed.openingCopy;
+        }
+      }
+    } catch (error) {
+      console.error("Could not restore saved birthday page:", error);
+    }
+
+    const opening = document.getElementById("opening");
+    const birthday = document.getElementById("birthday");
+    const editToggle = document.getElementById("edit-toggle");
+    const saveButton = document.getElementById("save-button");
+    const downloadButton = document.getElementById("download-button");
+    const wishButton = document.getElementById("wish-button");
+    const wishMessage = document.getElementById("wish-message");
+    const candles = document.getElementById("candles");
+    const cake = document.getElementById("cake");
+    const confettiLayer = document.getElementById("confetti-layer");
+    const toast = document.getElementById("toast");
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const saveKey = "milo-birthday-page-v1";
+    let editMode = false;
+    let wishMade = false;
+    let toastTimer;
+
+    document.getElementById("open-surprise").addEventListener("click", () => {
+      opening.hidden = true;
+      birthday.hidden = false;
+      window.scrollTo({ top: 0, behavior: motionPreference.matches ? "instant" : "smooth" });
+      releaseConfetti(30);
+      document.getElementById("birthday-title").focus({ preventScroll: true });
+    });
+
+    editToggle.addEventListener("click", () => {
+      editMode = !editMode;
+      document.body.classList.toggle("editing", editMode);
+      document.querySelectorAll("[data-editable]").forEach((element) => {
+        element.contentEditable = String(editMode);
+      });
+      document.querySelectorAll(".photo-edit").forEach((label) => {
+        label.hidden = !editMode;
+      });
+      editToggle.textContent = editMode ? "✓ Done editing" : "✎ Edit page";
+      showToast(editMode
+        ? "Edit mode is on. Click outlined text or choose a photo."
+        : "Editing is off. Remember to save or download your changes.");
+    });
+
+    document.querySelectorAll(".photo-input").forEach((input) => {
+      input.addEventListener("change", async () => {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        if (!file.type.startsWith("image/")) {
+          showToast("Please choose an image file.");
+          input.value = "";
+          return;
+        }
+        if (file.size > 15 * 1024 * 1024) {
+          showToast("That image is over 15 MB. Please choose a smaller picture.");
+          input.value = "";
+          return;
+        }
+
+        try {
+          const dataUrl = await compressImage(file);
+          const card = input.closest("[data-photo-card]");
+          const image = card.querySelector("img");
+          image.src = dataUrl;
+          image.hidden = false;
+          card.classList.add("has-photo");
+          showToast("Photo added. Save here or download the edited website.");
+        } catch (error) {
+          console.error("Could not load selected photo:", error);
+          showToast("Could not load that picture. Try another image.");
+        }
+        input.value = "";
+      });
+    });
+
+    function compressImage(file) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        const objectUrl = URL.createObjectURL(file);
+        image.onload = () => {
+          URL.revokeObjectURL(objectUrl);
+          const maxSide = 1500;
+          const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(image.width * scale));
+          canvas.height = Math.max(1, Math.round(image.height * scale));
+          const context = canvas.getContext("2d");
+          if (!context) {
+            reject(new Error("Canvas image processing is unavailable."));
+            return;
+          }
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL("image/jpeg", .82));
+        };
+        image.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error("The selected image could not be decoded."));
+        };
+        image.src = objectUrl;
+      });
+    }
+
+    saveButton.addEventListener("click", () => {
+      try {
+        localStorage.setItem(saveKey, JSON.stringify({
+          site: birthday.innerHTML,
+          openingTitle: document.getElementById("opening-title").innerHTML,
+          openingCopy: document.querySelector(".opening-copy").innerHTML
+        }));
+        saveButton.classList.add("saved");
+        showToast("Saved in this browser. Other people will not see changes until you download and republish.");
+      } catch (error) {
+        console.error("Could not save the birthday page:", error);
+        showToast("Could not save here. Download the website instead.");
+      }
+    });
+
+    downloadButton.addEventListener("click", () => {
+      try {
+        const clone = document.documentElement.cloneNode(true);
+        const clonedBirthday = clone.querySelector("#birthday");
+        const liveBirthday = document.getElementById("birthday");
+        clonedBirthday.innerHTML = liveBirthday.innerHTML;
+        clonedBirthday.hidden = false;
+        clone.querySelectorAll("[contenteditable]").forEach((element) => {
+          element.removeAttribute("contenteditable");
+        });
+        clone.querySelector("body").classList.remove("editing");
+
+        const source = "<!DOCTYPE html>\n" + clone.outerHTML;
+        const blob = new Blob([source], { type: "text/html;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = "milo-birthday.html";
+        anchor.click();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+        showToast("Downloaded the edited site. Publish this file for others to see your changes.");
+      } catch (error) {
+        console.error("Could not export the birthday page:", error);
+        showToast("Could not download the site. Try saving first, then try again.");
+      }
+    });
+
+    document.getElementById("wish-button").addEventListener("click", () => {
+      wishMade = !wishMade;
+      candles.classList.toggle("off", wishMade);
+      cake.classList.remove("pop");
+      void cake.offsetWidth;
+      cake.classList.add("pop");
+      wishButton.textContent = wishMade
+        ? "Candles blown out—wish sent! 💖"
+        : "Make a wish & celebrate 🎉";
+      wishMessage.textContent = wishMade
+        ? "May this year bring you every little thing your heart is wishing for."
+        : "Take another wish, Milo—you deserve a whole sky full.";
+      releaseConfetti(wishMade ? 100 : 48);
+    });
+
+    function releaseConfetti(count) {
+      if (motionPreference.matches) return;
+      const colors = ["#ed8ca7", "#f3c96a", "#a993e8", "#84c9b5", "#f4a77c"];
+      for (let index = 0; index < count; index += 1) {
+        const piece = document.createElement("span");
+        piece.className = "confetti";
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.setProperty("--fall-time", `${2.2 + Math.random() * 2}s`);
+        piece.style.setProperty("--drift", `${Math.round((Math.random() - .5) * 180)}px`);
+        piece.style.animationDelay = `${Math.random() * .8}s`;
+        confettiLayer.appendChild(piece);
+        window.setTimeout(() => piece.remove(), 5500);
+      }
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => toast.classList.remove("show"), 3500);
+    }
+
+  </script>
+
+
+</body></html>
